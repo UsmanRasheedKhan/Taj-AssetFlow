@@ -14,14 +14,17 @@ export function Sidebar({ userRole }: { userRole?: string }) {
   const links = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'View Inventory', href: '/inventory', icon: List },
+    { name: 'Faulty / Damaged', href: '/inventory/faulty', icon: List },
     { name: 'Add Asset', href: '/inventory/add', icon: PackagePlus },
-    { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
   if (userRole === 'superadmin') {
     links.push({ name: 'Users', href: '/users', icon: Users });
     links.push({ name: 'Admin Logs', href: '/admin-logs', icon: List });
   }
+
+  // Push Settings to the bottom
+  links.push({ name: 'Settings', href: '/settings', icon: Settings });
 
   const handleLogout = async () => {
     await logout();

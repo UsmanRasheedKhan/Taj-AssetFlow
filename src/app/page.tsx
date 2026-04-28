@@ -9,10 +9,28 @@ import { supabase } from "@/lib/supabase";
 export const revalidate = 0; // opt out of static caching for real-time dashboard
 
 export default async function Dashboard() {
-  const { count: totalAssets } = await supabase.from('assets').select('*', { count: 'exact', head: true });
-  const { count: availableAssets } = await supabase.from('assets').select('*', { count: 'exact', head: true }).is('assigned_to', null).neq('status', 'Faulty');
-  const { count: assignedAssets } = await supabase.from('assets').select('*', { count: 'exact', head: true }).not('assigned_to', 'is', null);
-  const { count: faultyAssets } = await supabase.from('assets').select('*', { count: 'exact', head: true }).eq('status', 'Faulty');
+  const { data: allAssets } = await supabase.from('assets').select('id, status, assigned_to');
+  
+  let totalAssets = 0;
+  let availableAssets = 0;
+  let assignedAssets = 0;
+  let faultyAssets = 0;
+
+  if (allAssets) {
+    totalAssets = allAssets.length;
+    for (const asset of allAssets) {
+      const isBad = ['Faulty', 'Snatched', 'Damaged'].includes(asset.status);
+      const isAssigned = asset.assigned_to && asset.assigned_to.trim() !== '' && asset.assigned_to.toLowerCase() !== 'unassigned';
+
+      if (isBad) {
+        faultyAssets++;
+      } else if (isAssigned) {
+        assignedAssets++;
+      } else {
+        availableAssets++;
+      }
+    }
+  }
 
   const { data: recentActivityData } = await supabase.from('assets').select('*').order('created_at', { ascending: false }).limit(5);
 
@@ -77,7 +95,7 @@ export default async function Dashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Faulty / Repair</CardTitle>
+            <CardTitle className="text-sm font-medium">Faulty / Damaged / Snatched</CardTitle>
             <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -110,7 +128,7 @@ export default async function Dashboard() {
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <div className="text-sm text-muted-foreground">{activity.time}</div>
-                      <Badge variant={activity.status === 'Faulty' ? 'destructive' : activity.status === 'New' ? 'default' : 'secondary'}>
+                      <Badge variant={['Faulty', 'Damaged', 'Snatched'].includes(activity.status) ? 'destructive' : activity.status === 'New' ? 'default' : 'secondary'}>
                         {activity.status}
                       </Badge>
                     </div>

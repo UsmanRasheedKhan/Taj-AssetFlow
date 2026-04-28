@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowLeft, Edit, Laptop, HardDrive, User, History, MapPin, Calendar, Server, Trash2 } from "lucide-react";
-import { getAsset, deleteAsset } from '../actions';
+import { getAsset, deleteAsset, updateAsset } from '../actions';
 import { useRouter } from 'next/navigation';
 
 export default function AssetPassportPage({ params }: { params: Promise<{ id: string }> }) {
@@ -50,6 +50,19 @@ export default function AssetPassportPage({ params }: { params: Promise<{ id: st
     }
   };
 
+  const handleStatusUpdate = async (newStatus: string) => {
+    setIsLoading(true);
+    const updatedData = { ...asset, status: newStatus };
+    const result = await updateAsset(resolvedParams.id, updatedData);
+    if (result.success) {
+      const data = await getAsset(resolvedParams.id);
+      setAsset(data);
+    } else {
+      alert("Error updating status: " + result.error);
+    }
+    setIsLoading(false);
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
@@ -84,6 +97,22 @@ export default function AssetPassportPage({ params }: { params: Promise<{ id: st
             Edit Asset
           </Link>
         </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-2 mt-2">
+        {['New', 'Used', 'Refub'].includes(asset.status) ? (
+          <>
+            <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleStatusUpdate('Faulty')}>Mark as Faulty</Button>
+            <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleStatusUpdate('Damaged')}>Mark as Damaged</Button>
+            <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleStatusUpdate('Snatched')}>Mark as Snatched</Button>
+          </>
+        ) : ['Faulty', 'Damaged', 'Snatched'].includes(asset.status) ? (
+          <>
+            <Button variant="outline" size="sm" className="text-emerald-600 border-emerald-600/30 hover:bg-emerald-50" onClick={() => handleStatusUpdate('Refub')}>Mark as Repaired (Refub)</Button>
+            <Button variant="outline" size="sm" className="text-emerald-600 border-emerald-600/30 hover:bg-emerald-50" onClick={() => handleStatusUpdate('Used')}>Mark as Recovered (Used)</Button>
+          </>
+        ) : null}
       </div>
 
       {/* Grid Layout */}

@@ -1,7 +1,7 @@
 -- Taj AssetFlow - PostgreSQL Schema for Supabase
 
 -- 1. Create enum for asset status
-CREATE TYPE asset_status AS ENUM ('New', 'Refub', 'Used', 'Faulty');
+CREATE TYPE asset_status AS ENUM ('New', 'Refub', 'Used', 'Faulty', 'Snatched', 'Damaged');
 
 -- 2. Create assets table
 CREATE TABLE public.assets (

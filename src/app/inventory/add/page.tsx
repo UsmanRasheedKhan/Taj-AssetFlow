@@ -25,7 +25,7 @@ const formSchema = z.object({
   // Step 3
   assignedTo: z.string().optional(),
   location: z.string().min(2, 'Location is required'),
-  status: z.enum(['New', 'Refub', 'Used', 'Faulty']),
+  status: z.enum(['New', 'Refub', 'Used', 'Faulty', 'Snatched', 'Damaged']),
   oldUsername: z.string().optional(),
   // Step 4
   purchaseDate: z.string().min(1, 'Purchase date is required'),
@@ -291,6 +291,8 @@ export default function AddAssetPage() {
                       <SelectItem value="Refub">Refurbished</SelectItem>
                       <SelectItem value="Used">Used</SelectItem>
                       <SelectItem value="Faulty">Faulty</SelectItem>
+                      <SelectItem value="Snatched">Snatched</SelectItem>
+                      <SelectItem value="Damaged">Damaged (Dead)</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.status && <p className="text-sm text-destructive">{errors.status.message}</p>}
